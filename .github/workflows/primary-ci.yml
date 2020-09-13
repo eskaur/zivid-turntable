@@ -1,0 +1,23 @@
+name: Primary CI workflow
+
+# When to run this workflow
+on: [push]
+
+jobs:
+  build-and-test:
+    # Choose which OS to run job on
+    runs-on: ubuntu-latest
+    # Check out source code of this repo
+    steps:
+    - uses: actions/checkout@v2
+    # Install Python
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+    # Install dependencies needed to run tests
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip && pip install -r requirements.txt
+    # Run linting checks
+    - name: Linting
+      run: ./ci/lint.sh

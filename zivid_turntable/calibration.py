@@ -64,7 +64,19 @@ def transform_frames(frames: List[zivid.Frame]) -> None:
 
     print("Detected Aruco marker sets:")
     for i, marker_set in enumerate(marker_sets):
-        print(f"Frame {i}: {list(marker_set.keys())}")
+        print(f"Frame {i}:")
+        for key, val in marker_set.items():
+            print(f"{key}: {val.center3d}")
+
+    # Check quality of marker sets
+    for i, marker_set in enumerate(marker_sets):
+        n_markers = len(marker_set.keys())
+        min_markers = 4
+        if n_markers < min_markers:
+            raise RuntimeError(
+                f"Frame {i} contains only {n_markers} well resolved markers. "
+                f"At least {min_markers} is required."
+            )
 
     # Use markers to transform all frames into the coordinate system of the first frame
     print("-" * 70)

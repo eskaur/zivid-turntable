@@ -75,6 +75,9 @@ def find_aruco_markers(point_cloud: zivid.PointCloud) -> Dict[int, ArucoMarker]:
         corners = coord[0, :, :]
         center2d = _corner2d_to_center2d(corners)
         center3d = _point2d_to_point3d(point_cloud, center2d)
-        markers[idnum] = ArucoMarker(idnum=idnum, center2d=center2d, center3d=center3d)
+        if not np.any(np.isnan(center3d)):
+            markers[idnum] = ArucoMarker(
+                idnum=idnum, center2d=center2d, center3d=center3d
+            )
 
     return markers

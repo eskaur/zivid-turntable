@@ -33,6 +33,9 @@ def get_settings(camera: zivid.Camera, capture_budget_seconds: float) -> zivid.S
     settings.processing.filters.experimental.contrast_distortion.correction.enabled = (
         True
     )
+    settings.processing.filters.experimental.contrast_distortion.removal.enabled = True
+    settings.processing.filters.experimental.contrast_distortion.removal.threshold = 0.2
+
     return settings
 
 

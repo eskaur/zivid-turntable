@@ -61,4 +61,9 @@ void loop() {
   stepper.move(steps);
   // Run to position with set speed and acceleration:
   stepper.runToPosition();
+  delay(100);
+  while(stepper.isRunning()){
+    delay(10);  
+  }
+  Serial.write(1);
 }

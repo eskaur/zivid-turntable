@@ -2,3 +2,4 @@ pylint
 black
 numpy
 mypy
+open3d

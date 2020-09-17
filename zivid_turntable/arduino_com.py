@@ -42,3 +42,4 @@ class ArduinoCom:
         """Send number of steps to move to the arduino"""
         steps_b = str(steps).encode()
         self.serial_connect.write(steps_b)
+        self.serial_connect.read()

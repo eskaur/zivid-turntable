@@ -109,13 +109,13 @@ def _get_base_transform(marker_set: Dict[int, ArucoMarker]) -> np.ndarray:
     return transform
 
 
-def transform_frames(frames: List[zivid.Frame]) -> None:
-    """In-place transform all point clouds to the coordinate system of the first frame
-
-    This is dependent on several Aruco markers being visible in all frames.
+def get_transforms(frames: List[zivid.Frame]) -> List[np.ndarray]:
+    """Get transforms to bring each frame into the base-plate frame
 
     Arguments:
-        List of Zivid frames with visible Aruco markers
+        frames:     List of Zivid frames
+    Returns:
+        List of 4x4 transforms
     """
 
     # Find and identify all Aruco markers
@@ -144,9 +144,9 @@ def transform_frames(frames: List[zivid.Frame]) -> None:
     print("-" * 70)
     print("Calculating transforms...")
 
+    transforms = []
     transform_to_maincam = np.eye(4)
-    # for i in range(1, len(frames)):
-    for i, frame in enumerate(frames):
+    for i in range(len(frames)):
 
         if i > 0:
             transform_to_prev = _get_transform(marker_sets[i - 1], marker_sets[i])
@@ -154,9 +154,5 @@ def transform_frames(frames: List[zivid.Frame]) -> None:
 
         transform = np.dot(base_transform, transform_to_maincam)
 
-        # transform_current = _get_transform(marker_sets[i - 1], marker_sets[i])
-        # transform_to_maincam = transform_to_maincam.dot(transform_current)
-        # transform_to_base = np.dot(base_transform, transform_to_maincam)
-        print(f"Applying transform to frame {i}:")
-        print(transform)
-        frame.point_cloud().transform(transform)
+        transforms.append(transform)
+    return transforms

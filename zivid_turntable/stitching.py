@@ -1,35 +1,28 @@
 """Module for combining into a single point cloud"""
 
 from typing import List
-
+import open3d as o3d
 import numpy as np
-import zivid
 
 
-def combine(frames: List[zivid.Frame], floor_tolerance: float) -> np.ndarray:
-    """Combine frames into a single colored point cloud with floor removed
+def stitch(point_clouds: List[o3d.geometry.PointCloud]) -> o3d.geometry.PointCloud:
+    """Combine point clouds into one (must be already transformed into the same frame)
 
     Arguments:
-        frames:             List of Zivid frames (already transformed)
-        floor_tolerance:    Will keep points more than this distance from floor
+        point_clouds:   List of Open3D point clouds
     Returns:
-        Array (nx6) of XYZRGB points
+        A new combined Open3D point cloud
     """
+    xyz_arrays = []
+    rgb_arrays = []
 
-    point_clouds = []
-    for i, frame in enumerate(frames):
-        print(f"Processing frame: {i}")
-        xyz = frame.point_cloud().copy_data("xyz")
-        rgb = frame.point_cloud().copy_data("rgba")[:, :, 0:3]
-        point_cloud = np.dstack([xyz, rgb])
-        # Remove NANs
-        point_cloud = point_cloud[~np.isnan(point_cloud[:, :, 2])]
-        # Flatten
-        point_cloud = point_cloud.reshape(-1, 6)
-        # Remove floor
-        point_cloud = point_cloud[point_cloud[:, 2] > floor_tolerance]
+    for pcd in point_clouds:
+        xyz_arrays.append(np.asarray(pcd.points))
+        rgb_arrays.append(np.asarray(pcd.colors))
 
-        # Append to collection
-        point_clouds.append(point_cloud)
-
-    return np.vstack(point_clouds)
+    xyz = np.vstack(xyz_arrays)
+    rgb = np.vstack(rgb_arrays)
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(xyz)
+    pcd.colors = o3d.utility.Vector3dVector(rgb)
+    return pcd

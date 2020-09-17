@@ -72,12 +72,15 @@ def find_aruco_markers(point_cloud: zivid.PointCloud) -> Dict[int, ArucoMarker]:
     # Construct an ArucoMarker object for each detected marker
     markers = {}
     for coord, idnum in zip(coords, idnums):
-        corners = coord[0, :, :]
-        center2d = _corner2d_to_center2d(corners)
-        center3d = _point2d_to_point3d(point_cloud, center2d)
-        if not np.any(np.isnan(center3d)):
-            markers[idnum] = ArucoMarker(
-                idnum=idnum, center2d=center2d, center3d=center3d
-            )
+        try:
+            corners = coord[0, :, :]
+            center2d = _corner2d_to_center2d(corners)
+            center3d = _point2d_to_point3d(point_cloud, center2d)
+            if not np.any(np.isnan(center3d)):
+                markers[idnum] = ArucoMarker(
+                    idnum=idnum, center2d=center2d, center3d=center3d
+                )
+        except Exception as ex:  # pylint: disable=broad-except
+            print(f"Skipping marker due to exception: {str(ex)}")
 
     return markers

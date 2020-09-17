@@ -3,3 +3,4 @@ black
 numpy
 mypy
 open3d
+pyserial

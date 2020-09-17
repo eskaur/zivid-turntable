@@ -1,5 +1,6 @@
 """Module for capturing point clouds"""
 
+import time
 from datetime import timedelta
 import itertools
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 import zivid
 
 from .io import create_casedir
+from .arduino_com import ArduinoCom
 
 
 def get_settings(camera: zivid.Camera, capture_budget_seconds: float) -> zivid.Settings:
@@ -73,3 +75,46 @@ def manual_capture_loop(
         print(f"Capturing frame: {filename}")
         with camera.capture(settings) as frame:
             frame.save(dirpath / filename)
+
+
+def auto_capture(
+    label: str,
+    camera: zivid.Camera,
+    n_images: int,
+    capture_budget_seconds: float,
+    workdir: Path = Path("."),
+) -> None:
+    """Auto-capture with turntable
+
+    Arguments:
+        label:                  Label to store data with (set None for dry-run)
+        camera:                 Zivid camera to capture with
+        n_images:               Number of images to capture
+        capture_budget_seconds: Time-budget per capture
+        workdir                 Path to root directory to create case in
+    """
+
+    # Create case directory
+    if label is not None:
+        dirpath = create_casedir(label, workdir)
+
+    # Get settings
+    settings = get_settings(camera, capture_budget_seconds)
+
+    # Connect to motor
+    motor_controller = ArduinoCom()
+    steps_per_rev = motor_controller.get_steps_per_rev()
+    steps_per_move = int(steps_per_rev / n_images)
+    time.sleep(1)
+
+    for i in range(n_images):
+
+        filename = f"frame_{i:02d}.zdf"
+        print(f"Capturing frame: {filename}")
+        with camera.capture(settings) as frame:
+            if label is not None:
+                frame.save(dirpath / filename)
+
+        print(f"Sending move signal: {steps_per_move}")
+        motor_controller.move_steps(steps_per_move)
+        print("Move done")

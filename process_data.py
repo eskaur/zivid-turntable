@@ -12,6 +12,7 @@ from zivid_turntable.processing import (
     remove_divergent_normals,
     remove_by_z_threshold,
     clean_outlier_blobs,
+    adjust_colors_from_normals,
 )
 from zivid_turntable.stitching import stitch
 
@@ -34,7 +35,7 @@ def _main() -> None:
 
     # Get transforms
     print("Detecting markers and calculating transforms for each frame")
-    transforms = get_transforms(frames)
+    transforms = get_transforms(frames, equalize_hist=True)
 
     # Convert to Open3D
     print("Converting to Open3D PointCloud")
@@ -45,6 +46,9 @@ def _main() -> None:
     point_clouds = [
         remove_divergent_normals(pcd, threshold=0.6) for pcd in point_cloud_originals
     ]
+
+    print("Adjusting colors based on normals")
+    point_clouds = [adjust_colors_from_normals(pcd) for pcd in point_clouds]
 
     # Transform to same coordinate system
     print("Applying transforms")
@@ -70,6 +74,7 @@ def _main() -> None:
     # Downsampling
     print("Downsampling")
     pcd = pcd.voxel_down_sample(voxel_size=0.25)
+    pcd.estimate_normals()
 
     # Save to file
     outfile_post_downsample = datadir / "post_downsample.ply"

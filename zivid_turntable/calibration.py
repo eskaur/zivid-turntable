@@ -109,7 +109,9 @@ def _get_base_transform(marker_set: Dict[int, ArucoMarker]) -> np.ndarray:
     return transform
 
 
-def get_transforms(frames: List[zivid.Frame]) -> List[np.ndarray]:
+def get_transforms(
+    frames: List[zivid.Frame], equalize_hist: bool = False
+) -> List[np.ndarray]:
     """Get transforms to bring each frame into the base-plate frame
 
     Arguments:
@@ -119,7 +121,9 @@ def get_transforms(frames: List[zivid.Frame]) -> List[np.ndarray]:
     """
 
     # Find and identify all Aruco markers
-    marker_sets = [find_aruco_markers(frame.point_cloud()) for frame in frames]
+    marker_sets = [
+        find_aruco_markers(frame.point_cloud(), equalize_hist) for frame in frames
+    ]
 
     print("Detected Aruco marker sets:")
     for i, marker_set in enumerate(marker_sets):

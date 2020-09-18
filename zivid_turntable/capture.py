@@ -116,5 +116,7 @@ def auto_capture(
                 frame.save(dirpath / filename)
 
         print(f"Sending move signal: {steps_per_move}")
+        time.sleep(0.1)
         motor_controller.move_steps(steps_per_move)
+        time.sleep(0.1)
         print("Move done")

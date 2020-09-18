@@ -22,6 +22,11 @@ def _main() -> None:
     # Get args
     parser = argparse.ArgumentParser(description="Capture turntable data")
     parser.add_argument("label", type=str, help="label for dataset")
+    parser.add_argument(
+        "--eq-hist",
+        action="store_true",
+        help="equalize histogram when detecting markers",
+    )
     args = parser.parse_args()
     print(args)
 
@@ -35,7 +40,7 @@ def _main() -> None:
 
     # Get transforms
     print("Detecting markers and calculating transforms for each frame")
-    transforms = get_transforms(frames, equalize_hist=True)
+    transforms = get_transforms(frames, equalize_hist=args.eq_hist)
 
     # Convert to Open3D
     print("Converting to Open3D PointCloud")

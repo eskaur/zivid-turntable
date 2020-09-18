@@ -3,7 +3,7 @@
 from pathlib import Path
 
 
-def _make_casedir_name(label: str) -> str:
+def make_casedir_name(label: str) -> str:
     """Create case directory name based on a label
 
     Arguments:
@@ -23,7 +23,7 @@ def create_casedir(label: str, workdir: Path) -> Path:
     Returns:
         Path to newly created case directory
     """
-    dirpath = workdir / _make_casedir_name(label)
+    dirpath = workdir / make_casedir_name(label)
     if dirpath.is_dir():
         raise RuntimeError(f"Directory already exists: {dirpath}")
     dirpath.mkdir()

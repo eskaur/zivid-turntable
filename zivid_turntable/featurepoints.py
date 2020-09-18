@@ -52,7 +52,9 @@ def _point2d_to_point3d(point_cloud: zivid.PointCloud, point2d: np.ndarray) -> s
     return xyz[idx[1], idx[0], :]
 
 
-def find_aruco_markers(point_cloud: zivid.PointCloud) -> Dict[int, ArucoMarker]:
+def find_aruco_markers(
+    point_cloud: zivid.PointCloud, equalize_histogram: bool = False
+) -> Dict[int, ArucoMarker]:
     """Find Aruco markers in point cloud
 
     Arguments:
@@ -64,6 +66,8 @@ def find_aruco_markers(point_cloud: zivid.PointCloud) -> Dict[int, ArucoMarker]:
     # Use OpenCV to find Aruco markers
     rgba = point_cloud.copy_data("rgba")
     grayscale = cv2.cvtColor(rgba, cv2.COLOR_RGB2GRAY)
+    if equalize_histogram:
+        grayscale = cv2.equalizeHist(grayscale)
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_100)
     res = cv2.aruco.detectMarkers(grayscale, aruco_dict)
     coords = res[0]

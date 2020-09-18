@@ -49,6 +49,28 @@ def remove_divergent_normals(
     return pcd_out
 
 
+def adjust_colors_from_normals(pcd: o3d.geometry.PointCloud) -> o3d.geometry.PointCloud:
+    """Adjust colors based on inverting Lambert's cosine law
+
+    Arguments:
+        pcd:        The point clout to adjust
+    Returns:
+        New adjusted point cloud
+    """
+    pcd.estimate_normals()
+    xyz = np.asarray(pcd.points)
+    rgb = np.asarray(pcd.colors)
+
+    normals_z = np.abs(np.asarray(pcd.normals)[:, 2])
+    nz_cols = np.column_stack((normals_z, normals_z, normals_z))
+    rgb = np.clip(rgb / nz_cols, 0.0, 1.0)
+
+    pcd_out = o3d.geometry.PointCloud()
+    pcd_out.points = o3d.utility.Vector3dVector(xyz)
+    pcd_out.colors = o3d.utility.Vector3dVector(rgb)
+    return pcd_out
+
+
 def clean_outlier_blobs(pcd: o3d.geometry.PointCloud) -> o3d.geometry.PointCloud:
     """Remove points that are not part of the main structure
 

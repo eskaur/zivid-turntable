@@ -1,0 +1,22 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Merge Close Vertices">
+  <Param name="Threshold" description="Merging distance" value="0" min="0" max="1" type="RichAbsPerc" tooltip="All the vertices that closer than this threshold are merged together. Use very small values, default values is 1/10000 of bounding box diagonal."/>
+ </filter>
+ <filter name="Close Holes">
+  <Param tooltip="The size is expressed as number of edges composing the hole boundary" description="Max size to be closed " type="RichInt" value="10000" name="MaxHoleSize"/>
+  <Param tooltip="Only the holes with at least one of the boundary faces selected are closed" description="Close holes with selected faces" type="RichBool" value="false" name="Selected"/>
+  <Param tooltip="After closing a hole the faces that have been created are left selected. Any previous selection is lost. Useful for example for smoothing the newly created holes." description="Select the newly created faces" type="RichBool" value="true" name="NewFaceSelected"/>
+  <Param tooltip="When closing an holes it tries to prevent the creation of faces that intersect faces adjacent to the boundary of the hole. It is an heuristic, non intersetcting hole filling can be NP-complete." description="Prevent creation of selfIntersecting faces" type="RichBool" value="false" name="SelfIntersection"/>
+ </filter>
+ <filter name="HC Laplacian Smooth"/>
+ <filter name="Remove Isolated pieces (wrt Diameter)">
+  <Param tooltip="Delete all the connected components (floating pieces) with a diameter smaller than the specified one" description="Enter max diameter of isolated pieces" max="116.222" type="RichAbsPerc" min="0" value="11.6222" name="MinComponentDiag"/>
+  <Param tooltip="if true, the unreferenced vertices remaining after the face deletion are removed." description="Remove unfreferenced vertices" type="RichBool" value="true" name="removeUnref"/>
+ </filter>
+ <filter name="Laplacian Smooth (surface preserving)">
+  <Param tooltip="Apply laplacian smooth on selected faces only" description="Update selection" type="RichBool" value="false" name="selection"/>
+  <Param tooltip="maximum mean normal angle displacement (degrees) from old to new faces" description="Max Normal Dev (deg)" type="RichFloat" value="0.5" name="AngleDeg"/>
+  <Param tooltip="number of laplacian smooth iterations in every run" description="Iterations" type="RichInt" value="100" name="iterations"/>
+ </filter>
+</FilterScript>

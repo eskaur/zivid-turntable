@@ -9,8 +9,15 @@ import mcubes
 import pyvista as pv
 import pymeshfix as mf
 from pyvista import examples
+import os
 
-def show_pc(pc):
+meshlabserver_path = 'C:\\Program Files\\VCG\\MeshLab'
+os.environ['PATH'] = meshlabserver_path + os.pathsep + os.environ['PATH']
+
+import meshlabxml as mlx
+
+
+def show(pc):
     if isinstance(pc, list):
         o3d.visualization.draw_geometries(pc)
     else:
@@ -55,11 +62,14 @@ def close_mesh_holes(mesh, **kwargs):
 
     filename = './mesh_cleaned.ply'
     save = False
+    join = False
     for key, value in kwargs.items():
         if key in ['keep', 'save']:
             save = value
         if key in ['name', 'filename']:
             filename = value
+        if key in ['join', 'join_closest_components', 'join_closest']:
+            join = value
     
     v = np.asarray(mesh.vertices)
     f = np.asarray(mesh.triangles)
@@ -68,7 +78,9 @@ def close_mesh_holes(mesh, **kwargs):
     tin = _meshfix.PyTMesh()
     tin.load_array(v, f)
 
-    tin.join_closest_components()
+    if join:
+        tin.join_closest_components()
+    
     tin.fill_small_boundaries()
 
     #tin.clean(max_iters=10, inner_loops=3)
@@ -98,7 +110,6 @@ def clean_point_cloud(pcd, filter_aggressiveness=0.2, **kwargs):
     g = filter_aggressiveness*10
     if g < 1:
         g = 1
-    pcd = pcd_orig
     pcd = pcd.voxel_down_sample(voxel_size=max(0.1, g*0.05))
     pcd, ind = pcd.remove_radius_outlier(nb_points=int((1+0.5*g + 0.5*g**2)), radius=2)
     pcd, ind = pcd.remove_statistical_outlier(nb_neighbors=int((1+0.5*(g+2) + 0.5*(g+2)**2)), std_ratio=(2-0.1*g))
@@ -187,14 +198,23 @@ def save_mesh(mesh, filename='./test_data/mesh.ply'):
 def save_pcd(pcd, filename='/test_data/pcd.ply'):
     o3d.io.write_point_cloud(filename, pcd)
 
+def pcd_downsample(pcd, voxel_size=0.9):
+    pcd = pcd.voxel_down_sample(voxel_size=voxel_size)
+    return mesh_to_pointcloud
+
 # %%
 pcd = o3d.io.read_point_cloud('./test_data/apple.ply', format='ply')
 
 pcd = clean_point_cloud(pcd, filter_aggressiveness=0.1)
-show_pc(pcd)
+show(pcd)
 
+# %%
+pcd.voxel_down_sample(0.9)
+show(pcd)
+
+# %%
 mesh = create_mesh(pcd, method='ball_pivoting')
-show_pc(mesh)
+show(mesh)
 
 # %%
 mclean = close_mesh_holes(mesh)
